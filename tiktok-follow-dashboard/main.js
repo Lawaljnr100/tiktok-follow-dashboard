@@ -11,11 +11,10 @@ const hashtags = input.hashtags || ["football", "ai", "motivation"];
 const dataset = await Actor.openDataset();
 
 // ------------------------------
-// 1️⃣ Fetch your followers/following
-// For demonstration, we are using placeholder arrays
-// You will replace this with Apify TikTok scraper later
-const followers = ["user1", "user2", "user3"];
-const following = ["user1", "user2", "user3", "user4", "user5"];
+// New real data from TikTok Scraper
+const tiktokData = await scrapeFollowersAndFollowing(username);
+const followers = tiktokData.filter(i => i.relation === "follower").map(i => i.authorMeta.name);
+const following = tiktokData.filter(i => i.relation === "following").map(i => i.authorMeta.name);
 
 // Find accounts not following back
 const notFollowingBack = following.filter(user => !followers.includes(user));
