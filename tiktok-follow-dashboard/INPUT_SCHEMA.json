@@ -1,0 +1,18 @@
+{
+  "title": "TikTok Account Input",
+  "type": "object",
+  "properties": {
+    "username": {
+      "type": "string",
+      "description": "Your TikTok username (without @)",
+      "default": "lawalneymar10"
+    },
+    "hashtags": {
+      "type": "array",
+      "description": "List of hashtags to find suggested accounts",
+      "items": { "type": "string" },
+      "default": ["football", "ai", "motivation"]
+    }
+  },
+  "required": ["username"]
+}

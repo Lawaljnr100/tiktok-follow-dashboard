@@ -2,15 +2,23 @@ import { Actor } from 'apify';
 
 await Actor.init();
 
+// Get input
+const input = await Actor.getInput();
+const username = input.username || "lawalneymar10"; // your TikTok username
+const hashtags = input.hashtags || ["football", "ai", "motivation"];
+
+// Open dataset
 const dataset = await Actor.openDataset();
 
-// === Followers / Following ===
+// ------------------------------
+// 1️⃣ Fetch your followers/following
+// For demonstration, we are using placeholder arrays
+// You will replace this with Apify TikTok scraper later
 const followers = ["user1", "user2", "user3"];
 const following = ["user1", "user2", "user3", "user4", "user5"];
 
-const notFollowingBack = following.filter(
-  user => !followers.includes(user)
-);
+// Find accounts not following back
+const notFollowingBack = following.filter(user => !followers.includes(user));
 
 for (const user of notFollowingBack) {
   await dataset.pushData({
@@ -20,7 +28,9 @@ for (const user of notFollowingBack) {
   });
 }
 
-// === Suggested accounts to follow ===
+// ------------------------------
+// 2️⃣ Suggested accounts to follow (from hashtags)
+// Placeholder suggested accounts
 const suggestedAccounts = [
   { username: "creator1", followers: 1200, niche: "football" },
   { username: "creator2", followers: 800, niche: "ai" },
