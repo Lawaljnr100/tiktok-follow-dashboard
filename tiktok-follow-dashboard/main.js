@@ -1,22 +1,48 @@
 import { Actor } from 'apify';
+import { ApifyClient } from '@apify/client';
 
 await Actor.init();
 
-// Get input
+// === 1️⃣ Load input
 const input = await Actor.getInput();
-const username = input.username || "lawalneymar10"; // your TikTok username
+const username = input.username || "lawalneymar10";
 const hashtags = input.hashtags || ["football", "ai", "motivation"];
 
-// Open dataset
+// === 2️⃣ Open dataset
 const dataset = await Actor.openDataset();
 
-// ------------------------------
-// New real data from TikTok Scraper
-const tiktokData = await scrapeFollowersAndFollowing(username);
-const followers = tiktokData.filter(i => i.relation === "follower").map(i => i.authorMeta.name);
-const following = tiktokData.filter(i => i.relation === "following").map(i => i.authorMeta.name);
+// === 3️⃣ Apify client to call TikTok scraper actor
+const client = new ApifyClient({ token: process.env.APIFY_TOKEN });
 
-// Find accounts not following back
+// Function to scrape followers/following
+async function scrapeFollowersAndFollowing(username) {
+  const run = await client.actor("clockworks/tiktok-followers-scraper").call({
+    input: {
+      profiles: [`@${username}`],
+      maxFollowersPerProfile: 500,
+      maxFollowingPerProfile: 500
+    },
+    build: "latest"
+  });
+  
+  // Get dataset items from the scraper
+  const datasetId = run.defaultDatasetId;
+  const results = await client.dataset(datasetId).listItems({ limit: 1000 });
+  return results.items;
+}
+
+// === 4️⃣ Get real TikTok data
+const tiktokData = await scrapeFollowersAndFollowing(username);
+
+const followers = tiktokData
+  .filter(i => i.relation === "follower")
+  .map(i => i.authorMeta.name);
+
+const following = tiktokData
+  .filter(i => i.relation === "following")
+  .map(i => i.authorMeta.name);
+
+// === 5️⃣ Find accounts not following back
 const notFollowingBack = following.filter(user => !followers.includes(user));
 
 for (const user of notFollowingBack) {
@@ -27,10 +53,9 @@ for (const user of notFollowingBack) {
   });
 }
 
-// ------------------------------
-// 2️⃣ Suggested accounts to follow (from hashtags)
-// Placeholder suggested accounts
+// === 6️⃣ Suggested accounts (from hashtags)
 const suggestedAccounts = [
+  // Example: you can replace these later with hashtag scraping
   { username: "creator1", followers: 1200, niche: "football" },
   { username: "creator2", followers: 800, niche: "ai" },
   { username: "creator3", followers: 500, niche: "motivation" }
